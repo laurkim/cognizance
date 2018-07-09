@@ -208,7 +208,7 @@ function resetGame() {
         populateLeaderboard(json.data);
       });
 
-    fetch("https://cognizance.herokuapp.com/api/v1/cards")
+    fetch(`${backendURL}/cards`)
       .then(res => res.json())
       .then(json => {
         initiateGameListener(json.data);
@@ -274,11 +274,11 @@ function addCardToDeck(json) {
   });
 }
 
-//adds a 'flipping' listener to each card on click
+// adds a 'flipping' listener to each card on click
 function addCardListener(card, shuffledArray) {
   card.addEventListener("click", function(ev) {
     ev.preventDefault();
-    //fixes bug where you could click the
+    // fixes bug where you could click the
     // same card twice and get a match
     if (this.id != matchId[1]) {
       //currentFlipped resets every 2nd click,
@@ -304,7 +304,8 @@ function addCardListener(card, shuffledArray) {
   });
 }
 
-//makes a game board of a certain number of rows of 8 cards.
+// makes a game board of a certain number of rows of 8 cards
+// adds event listeners to all cards generated based on difficulty chosen
 function makeBoardOfXRows(rows) {
   gameBoardDimensions(rows);
   game.innerHTML = "";
@@ -316,6 +317,9 @@ function makeBoardOfXRows(rows) {
       game.appendChild(card);
     }
   }
+  fetch(`${backendURL}/cards`)
+    .then(res => res.json())
+    .then(json => generateCards(json.data))
 }
 
 function gameBoardDimensions(rows) {
