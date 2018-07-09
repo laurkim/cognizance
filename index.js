@@ -1,9 +1,11 @@
-// const form = document.getElementById("form");
+// Backend Rails API URL
+const backendURL = "https://cognizance.herokuapp.com/api/v1";
+
+// Elements from DOM
 const form = document.getElementById("form");
 const loginButton = document.getElementById("login-button");
 const game = document.getElementById("game");
 const gameDeck = [];
-const backendURL = "https://cognizance.herokuapp.com/api/v1";
 let currentUser = document.getElementById("current-user");
 let dropdown = document.getElementsByClassName("dropdown");
 let dropdownButton = document.getElementById("dropdown-button");
@@ -11,6 +13,8 @@ let easyButton = document.getElementById("easy-difficulty");
 let medButton = document.getElementById("medium-difficulty");
 let hardButton = document.getElementById("hard-difficulty");
 let dropdownText = document.getElementById("dropdown-text");
+
+// Variables for game functionality
 let howManyRows = 1;
 let currentFlipped = 0;
 let totalFlips = 0;
@@ -40,7 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
     .then(json => (data = json))
     .then(json => resetGame());
 
-  fetch("https://cognizance.herokuapp.com/api/v1/cards")
+  fetch(`${backendURL}/cards`)
     .then(res => res.json())
     .then(json => {
       initiateGameListener(json.data);
@@ -121,8 +125,8 @@ function preventClicks() {
   game.appendChild(notification);
 }
 
-function eventListener() {
-  //this prevents a bug where you could click in the interval between start and the first countdown div popping up.
+function pauseEventListener() {
+  // this prevents a bug where you could click in the interval between start and the first countdown div popping up.
   const clickPreventer = document.getElementsByClassName("win")[0];
   if (!clickPreventer) {
     preventClicks();
@@ -134,15 +138,14 @@ function eventListener() {
 function initiateGameListener(json) {
   let startButton = document.getElementById("start-button");
   if (startButton.attributes.onclick) {
-    startButton.removeAttribute("onclick", "eventListener()");
+    startButton.removeAttribute("onclick", "pauseEventListener()");
   }
-  startButton.setAttribute("onclick", "eventListener()");
+  startButton.setAttribute("onclick", "pauseEventListener()");
   generateCards(json);
 }
 
-//gives a 3,2,1 countdown when you hit start
+// gives a countdown when you hit start
 function startNotification() {
-  // let startButton = document.getElementById("start-button");
   countDownCounter = 4;
   countDownTimer = window.setTimeout("countDown()", 1000);
 }
@@ -188,7 +191,7 @@ function startTimer() {
   }, 1000);
 }
 
-// reloads webpage when eventlistener on reset button is triggered
+// reloads webpage when eventListener on reset button is triggered
 function resetGame() {
   const resetButton = document.getElementsByClassName("game-reset")[0];
   resetButton.addEventListener("click", e => {
@@ -218,11 +221,10 @@ function generateCards(json) {
   collectCards(json);
 }
 
-//gets random card from all json, addCardToDe adds to gameDeck,
+// gets random card from all json, addCardToDeck adds to gameDeck,
 // then removes from json array for next iteration
 function makeDecks(json) {
   const json2 = json.slice();
-  // debugger;
   for (let i = 0; i < howManyRows * 4; i++) {
     let rand = json2[Math.floor(Math.random() * json2.length)];
     let index = json2.indexOf(rand);
@@ -234,8 +236,7 @@ function makeDecks(json) {
   }
 }
 
-//randomizes images, adds an event listener to each card div,
-// specific to an image
+// randomizes card images, adds an event listener to each card div specific to an image
 function collectCards(json) {
   const shuffledArray = shuffleArray(gameDeck); // gameDeck;
   //change shuffleArray(gameDeck) to gameDeck to troubleshoot (won't shuffle)
@@ -245,7 +246,7 @@ function collectCards(json) {
   }
 }
 
-//modern version of fischer-yates shuffle algorithm, shuffles array.
+// shuffles array
 function shuffleArray(array) {
   var j, x, i;
   for (i = array.length - 1; i > 0; i--) {
@@ -256,6 +257,7 @@ function shuffleArray(array) {
   }
   return array;
 }
+
 //push 2 of the same card to gameDeck (for matching)
 function addCardToDeck(json) {
   gameDeck.push({
@@ -269,7 +271,7 @@ function addCardToDeck(json) {
     image: json.attributes.img,
     name: json.attributes.name,
     matched: false
-  }); //2 of each card
+  });
 }
 
 //adds a 'flipping' listener to each card on click
@@ -337,14 +339,9 @@ function doTheyMatch() {
     matchId[0].toString() === "a" + matchId[2] ||
     "a" + matchId[0] === matchId[2].toString()
   ) {
-    // if (matchId[0] === matchId[2] && matchId[1] != matchId[3])
-    // { //also works, remove the "a" assignment from addCardToDeck. Less good, as id's should be unique
     theyMatch();
   } else {
     setTimeout(changeBack, 900);
-    //Want to make this a click event, not a timeout,
-    // but cant get the click working over the entire page.
-    // Currently, it only works 'not on a card div'
   }
 }
 
@@ -358,8 +355,6 @@ function theyMatch() {
 function changeMatching() {
   document.getElementById(matchId[1]).className = "matched";
   document.getElementById(matchId[3]).className = "matched";
-  // document.getElementById(matchId[1]).style.opacity = 0.4;
-  // document.getElementById(matchId[3]).style.opacity = 0.4;
   matchId = [];
   currentFlipped = 0;
   checkGameStatus();
@@ -375,7 +370,7 @@ function makeClone(e) {
   element.parentNode.replaceChild(clone, element);
 }
 
-//on wrong guesses, changes card image back
+// on incorrect matches, changes card image back
 // to the 'back' of the card. resets matchId and currentFlipped
 function changeBack() {
   document.getElementById(matchId[1]).style.background = "#209CEE";
@@ -386,8 +381,7 @@ function changeBack() {
 
 function checkGameStatus() {
   const matchedCards = document.getElementsByClassName("matched");
-  const currentTime = document.getElementsByClassName("timer-count")[0]
-    .innerText;
+  const currentTime = document.getElementsByClassName("timer-count")[0].innerText;
   if (matchedCards.length === howManyRows * 8) {
     postGameData();
     const win = document.createElement("div");
@@ -400,7 +394,7 @@ function checkGameStatus() {
   }
 }
 
-// 'Log in' a user. Just checks input name against json data, makes a new user in api if the name doesnt match any records
+// Based on user input, will check the Rails API to see if the user exists and if not, create a new user for logging in
 function logInUser() {
   const username = document.getElementById("nameInput").value;
   fetch(`${backendURL}/users`)
@@ -410,7 +404,6 @@ function logInUser() {
 }
 
 function checkCurrentUser(json, username) {
-  // debugger;
   let userHere = false;
   json.forEach(function(json) {
     if (json.attributes.name === username) {
@@ -428,7 +421,6 @@ function fetchUser(json, username) {
 }
 
 function makeUser(username) {
-  // debugger;
   fetch(`${backendURL}/users`, {
     method: "POST",
     headers: {
@@ -436,7 +428,6 @@ function makeUser(username) {
     },
     body: JSON.stringify({ user: { name: username, highscore: 500 } })
   });
-
   setUser(username);
 }
 
@@ -445,8 +436,7 @@ function setUser(username) {
   currentUser.innerText = username;
 }
 
-//-------------------
-//with difficulty options, add in another parameter to check against (at current difficulty)
+// with difficulty options, add in another parameter to check against (at current difficulty)
 // update highscores table after game finishes
 function postGameData() {
   let id = 0;
@@ -466,6 +456,7 @@ function postGameData() {
   });
 }
 
+// will make a patch request to update the user's the highscore in the Rails API
 function updateHighScore(id) {
   fetch(`${backendURL}/users/${id}`, {
     method: "PATCH",
@@ -485,6 +476,8 @@ function updateHighScore(id) {
     });
 }
 
+// after a user's high score has been updated, it will rerender
+// all the high scores on the leaderboard based on the new data
 function updateLeaderboard() {
   fetch(`${backendURL}/users`)
     .then(res => res.json())
