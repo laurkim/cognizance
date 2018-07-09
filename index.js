@@ -353,7 +353,7 @@ function theyMatch() {
   window.setTimeout(changeMatching, 500);
 }
 
-//makes a clone of the divs, removes the original
+// makes a clone of the divs, removes the original
 // (and their associated event listeners), sets the new clone opacity,
 // resets the matchId array, resets the currently flipped cards counter
 function changeMatching() {
@@ -362,16 +362,6 @@ function changeMatching() {
   matchId = [];
   currentFlipped = 0;
   checkGameStatus();
-}
-
-//removes all event listeners, clones and appends div (so no more clicks can occur)
-function makeClone(e) {
-  const element = document.getElementById(matchId[e]);
-  var clone = element.cloneNode();
-  while (element.firstChild) {
-    clone.appendChild(element.lastChild);
-  }
-  element.parentNode.replaceChild(clone, element);
 }
 
 // on incorrect matches, changes card image back
