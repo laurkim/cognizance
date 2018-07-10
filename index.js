@@ -339,10 +339,7 @@ function gameBoardDimensions(rows) {
 }
 
 function doTheyMatch() {
-  if (
-    matchId[0].toString() === "a" + matchId[2] ||
-    "a" + matchId[0] === matchId[2].toString()
-  ) {
+  if (matchId[0].toString() === "a" + matchId[2] || "a" + matchId[0] === matchId[2].toString()) {
     theyMatch();
   } else {
     setTimeout(changeBack, 900);
