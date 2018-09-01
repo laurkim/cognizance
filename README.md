@@ -8,4 +8,4 @@ The main objective of Cognizance is to find all the matches as quickly as possib
 
 The more a user plays, the more they will be able to memorize card placements better and make quicker matches. Based on this analysis, there are increasing levels of difficulty provided to ensure the user continues to learn with prolonged use.
 
-To see examples of how this game works, please visit [this](https://github.com/laurkim/cognizance-demo) repository for a demo.
+To see the live application, please visit [this](https://cognizance-game.herokuapp.com/) Heroku page. To see examples of how this game works, please visit [this](https://github.com/laurkim/cognizance-demo) repository for a demo.
